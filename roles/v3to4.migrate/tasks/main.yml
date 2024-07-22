@@ -1,0 +1,185 @@
+---
+# tasks file for roles/vireo4.migrate
+
+- name: Install Ruby
+  shell: |
+    amazon-linux-extras install -y ruby3.0
+  become: yes
+
+- name: Install ruby/postgres dev tools
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - postgresql-devel
+      - zlib-devel
+      - gcc
+      - gcc-c++
+      - ruby-devel
+      - rubygems
+  become: yes
+
+- name: install pg gem
+  gem:
+    name: pg
+    state: present
+    user_install: yes
+  ignore_errors: yes
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+#- name: gem pristine
+#  shell: |
+#    gem pristine pg
+#  become: yes
+#  become_user: "{{ vireo_user }}"
+#  ignore_errors: yes
+
+- name: clone migration repo - generic WITH ACCOUNT
+  git:
+    repo: "https://{{ gitlab_user | urlencode }}:{{ gitlab_passwd | urlencode }}@{{ git_origin }}/{{migrationcode}}.git"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/"
+    version: "{{ gitlab_migrate_branch }}"
+    force: yes
+  when: gitlab_user is defined
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: clone migration repo - generic WITH PUBLIC SOURCE
+  git:
+    repo: "https://{{ git_origin }}/{{migrationcode}}.git"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/"
+    version: "{{ gitlab_migrate_branch }}"
+    force: yes
+  when: gitlab_user is undefined
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: clone migration repo - site specific WITH ACCOUNT
+  git:
+    repo: "https://{{ gitlab_user | urlencode }}:{{ gitlab_passwd | urlencode }}@{{ git_origin }}/{{migrationcode_sitespecific}}.git"
+    dest: "{{ vireo_codedir }}/{{ migrationcode_sitespecific }}/"
+    version: "{{ gitlab_migrate_branch_sitespecific }}"
+    force: yes
+  when: gitlab_user is defined
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: clone migration repo - site specific WITH PUBLIC SOURCE
+  git:
+    repo: "https://{{ git_origin }}/{{migrationcode_sitespecific}}.git"
+    dest: "{{ vireo_codedir }}/{{ migrationcode_sitespecific }}/"
+    version: "{{ gitlab_migrate_branch_sitespecific }}"
+    force: yes
+  when: gitlab_user is undefined
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: copy site specific migration file SiteSpecific.rb to migration directory
+  copy:
+    src: "{{ vireo_codedir }}/{{migrationcode_sitespecific}}/SiteSpecific.rb"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/SiteSpecific.rb"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  ignore_errors: yes
+
+- name: copy python test comp.py
+  copy:
+    src: "{{ vireo_codedir }}/{{migrationcode_sitespecific}}/comp.py"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/comp.py"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  ignore_errors: yes
+
+- name: copy python test comparator.py (SHOULD BE TEMPLATIZED) 
+  copy:
+    src: "{{ vireo_codedir }}/{{migrationcode_sitespecific}}/comparator.py"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/comparator.py"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  ignore_errors: yes
+
+- name: if next step fails then try '/usr/lib/jvm/java-1.8.0/bin/javac'
+  shell: |
+    /usr/lib/jvm/java-1.8.0/bin/javac -version
+    /usr/lib/jvm/java-11/bin/javac -version
+    javac -version
+  ignore_errors: yes
+  become: yes
+
+- name: create hash.class
+  shell: |
+    cd "{{ vireo_codedir }}/{{migrationcode}}"
+    #/usr/lib/jvm/java-1.8.0/bin/javac hash.java
+    #/usr/lib/jvm/java-11/bin/javac hash.java
+    /usr/bin/javac hash.java
+  ignore_errors: yes
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: create HashMapFromHex.class
+  shell: |
+    cd "{{ vireo_codedir }}/{{migrationcode}}"
+    #/usr/lib/jvm/java-1.8.0/bin/javac HashMapFromHex.java
+    #/usr/lib/jvm/java-11/bin/javac HashMapFromHex.java
+    /usr/bin/javac HashMapFromHex.java
+  ignore_errors: yes
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: create DepLocEncode.class
+  shell: |
+    cd "{{ vireo_codedir }}/{{migrationcode}}"
+    #/usr/lib/jvm/java-1.8.0/bin/javac DepLocEncode.java
+    #/usr/lib/jvm/java-11/bin/javac DepLocEncode.java
+    /usr/bin/javac DepLocEncode.java
+  ignore_errors: yes
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: update MigrateGlobal.rb from j2
+  template:
+    src: MigrateGlobal.rb.j2
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/MigrateGlobal.rb"
+    owner: "{{vireo_user}}"
+    mode: 0644
+  become: yes
+
+- name: save settings
+  shell: |
+    ruby SaveManagedConfig.rb
+  args:
+    chdir: "{{ vireo_codedir }}/{{ migrationcode }}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+  ignore_errors: yes
+#BECAUSE IF IT FAILS WE WANT TO FIND OUT WHY
+
+- name: save settings copy
+  copy:
+    src: "{{ vireo_codedir }}/{{ migrationcode }}/{{ vireo_db4_name[current_site] }}.config"
+    dest: "{{ vireo_codedir }}"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  ignore_errors: yes
+
+- name:  copy config file from origin
+  copy:
+    src: "{{ vireo4_configpath }}/{{ vireo4_configfile[current_site] }}"
+    dest: "{{vireo_codedir }}/{{ migrationcode }}/{{ vireo4_configfile[current_site] }}_fromserver"
+    mode: 0777
+  become: yes
+  when: vireo4_configfile[current_site] != 'NONE'
+  ignore_errors: yes
+
+
+

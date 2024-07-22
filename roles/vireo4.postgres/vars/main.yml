@@ -1,0 +1,12 @@
+---
+__postgresql_version: "{{postgres_version}}"
+__postgresql_data_dir: "{{ postgres_datapath }}"
+__postgresql_bin_path: "/usr/bin"
+__postgresql_config_path: " {{ postgres_datapath }}"
+__postgresql_daemon: postgresql
+__postgresql_packages:
+  - postgresql
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-libs
+  - postgresql-devel

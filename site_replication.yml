@@ -1,0 +1,18 @@
+---
+- name: Update the vireo code and migration code of a Vireo4 instance
+  hosts: "{{ tdl_tagname[vm_location] }}"
+  become: true
+  vars_files:
+    #["TDL/vars_vireo4.yml","TDL/vars_vireo4_hosts.yml","TDL/vars_secrets.yml","TDL/vars_migration.yml","TDL/vars_site_replication.yml"]
+    ["LOCAL/vars_vireo4.yml","LOCAL/vars_vireo4_hosts.yml","LOCAL/vars_secrets.yml","LOCAL/vars_migration.yml","LOCAL/vars_site_replication.yml"]
+  vars:
+    db_source: "{{ vireo_db_source }}"
+  gather_facts: true
+  roles:
+    - vireo4.sitedbV4		#used to replicate and existing V4 database on a local VM
+    - vireo4.database_sql       #used to run alter scripts and others on database
+
+
+
+
+

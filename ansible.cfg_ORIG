@@ -1,0 +1,6 @@
+[py3_hosts:vars]
+allow_world_readable_tmpfiles=true
+ansible_python_interpreter=/usr/bin/python3
+#ansible_python_interpreter=/usr/bin/python3.7
+#ansible_python_interpreter=/bin/python3
+

@@ -1,0 +1,77 @@
+---
+# tasks file for roles/vireo4.migrate
+
+- name: run ruby Curation
+  shell: |
+    ruby GenerateCM.rb > {{ current_site }}_V3.json
+  args:
+    chdir: "{{ vireo_homedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+  ignore_errors: yes
+
+- name: clone curation repo
+  git:
+    repo: "https://{{ gitlab_user | urlencode }}:{{ gitlab_passwd | urlencode }}@{{ git_origin }}/{{curationcode}}.git"
+    dest: "{{ vireo_homedir }}/cm/{{curationcode}}/"
+    force: yes
+  become_user: "{{ vireo_user }}"
+  become: yes
+
+- name: Add copy of *_V3.json to curation tool
+  copy:
+    src: "{{ vireo_homedir }}/{{migrationcode}}/{{current_site}}_V3.json"
+    dest: "{{ vireo_homedir }}/cm/{{curationcode}}/flask/"
+    owner: "vagrant"
+    group: "vagrant"
+    remote_src: yes
+  become: yes
+  ignore_errors: yes
+
+- name: Add config to default Apache SSL config
+  blockinfile:
+    path: /etc/httpd/conf.d/ssl.conf
+    create: yes
+    content: |
+      ProxyPass /curationmanager/ http://127.0.0.1:5000/
+      ProxyPassReverse /curationmanager/ http://127.0.0.1:5000/
+    insertafter: "ServerName"
+  when: apache_use_ssl
+
+- name: Add config to default Apache non SSL config
+  blockinfile:
+    path: /etc/httpd/conf.d/vireo.conf
+    create: yes
+    content: |
+      ProxyPass /curationmanager/ http://127.0.0.1:5000/
+      ProxyPassReverse /curationmanager/ http://127.0.0.1:5000/
+    insertafter: "ServerName"
+  when: not apache_use_ssl
+
+- name: "INSIDE FLASK  python3 app.py &"
+  ansible.builtin.debug:
+    msg: "INSIDE FLASK  python3 app.py &"
+
+- name: OPTIONAL CMD   vagrant plugin install vagrant-vbguest
+  ansible.builtin.debug:
+    msg: OPTIONAL CMD   vagrant plugin install vagrant-vbguest
+
+- name: OPTIONAL CMD   vagrant plugin install vagrant-scp
+  ansible.builtin.debug:
+    msg: OPTIONAL CMD   vagrant plugin install vagrant-scp
+
+- name: OPTIONAL CMD   vagrant plugin update
+  ansible.builtin.debug:
+    msg: OPTIONAL CMD   vagrant plugin update
+
+- name: CMD   vagrant global-status
+  ansible.builtin.debug:
+    msg: CMD   vagrant global-status
+
+- name: CMD   vagrant scp [vm_id]:/home/vagrant/curation_V3.json [localfilename]
+  ansible.builtin.debug:
+    msg: "CMD   vagrant scp [vm_id]:/home/vagrant/curation_V3.json [localfilename]"
+
+
+
+

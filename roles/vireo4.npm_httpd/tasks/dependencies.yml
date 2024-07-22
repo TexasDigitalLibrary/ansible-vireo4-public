@@ -1,0 +1,78 @@
+---
+- name: remove .npm dir
+  ansible.builtin.file:
+    path: "{{ vireo_homedir }}/.npm/"
+    state: absent
+  become: yes
+   
+- name: remove .nvm dir
+  ansible.builtin.file:
+    path: "{{ vireo_homedir }}/.nvm/"
+    state: absent
+  become: yes
+
+- name: Install nvm for user {{ vireo_user }}
+  shell: "curl -o- --proxy-insecure https://raw.githubusercontent.com/creationix/nvm/v{{ nvm_version }}/install.sh | bash"
+  become: true
+  become_user: "{{ vireo_user }}"
+  args:
+    warn: false
+
+- name: Add nvm to bash
+  lineinfile:
+    dest: "/home/{{ vireo_user }}/.bashrc"
+    line: cd ~
+    insertafter: EOF
+      
+- name: Add maven to bash
+  lineinfile:
+    dest: "/home/{{ vireo_user }}/.bashrc"
+    line: "export M2_HOME=/opt/maven"
+    insertafter: EOF
+  when: vireo_version_new
+
+- name: Add maven to bash
+  lineinfile:
+    dest: "/home/{{ vireo_user }}/.bashrc"
+    line: "export PATH=${M2_HOME}/bin:${PATH}"
+    insertafter: EOF
+  when: vireo_version_new
+
+
+- name: source bash
+  shell: source /home/{{ vireo_user }}/.bashrc
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ vireo_user }}"
+
+
+- name: Install nodejs for user {{ vireo_user }}
+  shell: source /home/{{ vireo_user }}/.bashrc && nvm install v{{ node_version }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ vireo_user }}"
+
+#- name: Install nyc for user {{ vireo_user }}
+#  shell: source /home/{{ vireo_user }}/.bashrc && npm i -D nyc
+#  args:
+#    executable: /bin/bash
+#  become: true
+#  become_user: "{{ vireo_user }}"
+
+- name: Install yarn for user {{ vireo_user }}
+  shell: source /home/{{ vireo_user }}/.bashrc && npm install -g yarn
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ vireo_user }}"
+
+#- name: Install grunt-cli for user {{ vireo_user }}
+#  shell: source /home/{{ vireo_user }}/.bashrc && npm install -g grunt-cli
+#  args:
+#    executable: /bin/bash
+#  become: true
+#  become_user: "{{ vireo_user }}"
+
+

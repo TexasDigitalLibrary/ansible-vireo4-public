@@ -1,0 +1,136 @@
+---
+### OVERRIDDEN ELSEWHERE
+#Default
+tdl_tagname:
+  localvm: all
+
+#Default
+project_hostname:
+  localvm: localhost
+
+#USE IF VIREO3 SITE HAD CUSTOMIZATIONS FOR dc FIELDS
+customize_organization: false
+
+###SUPPRESS DATA LOAD FOR UPGRADES
+data_load: false
+
+### SELECT APACHE SSL
+#apache_use_ssl: false
+apache_use_ssl: true
+
+### SELECT TO USE SHIBBOLETH
+#config_shibboleth: false
+config_shibboleth: true
+
+### RUN NON IDEMPOTENT SQL UPDATE FOR PR 1930
+#run_sql: true
+run_sql: false
+
+### JAVA VERSION
+java_version_alternatives: /usr/lib/jvm/java-11-openjdk-11.0.23.0.9-2.amzn2.0.1.x86_64/bin/java
+
+### SELECT HOST
+current_site: special
+
+### USE LOCAL VM OR PRODUCTION
+#vm_location: localvm
+vm_location: "{{ current_site }}"
+
+
+
+# OCCASIONAL EDITING BELOW
+#########################################
+
+apache_ssl_cert_key: /cert_path/special_server.key
+apache_ssl_cert_cer: /cert_path/special_cert.cer
+apache_ssl_cert_interm: /cert_path/special_interm.cer
+
+apache_ssl_cert_key_dest: /etc/pki/tls/certs/special_server.key
+apache_ssl_cert_cer_dest: /etc/pki/tls/certs/special_cert.cer
+apache_ssl_cert_interm_dest: /etc/pki/tls/certs/special_interm.cer
+
+
+
+#SITE EMAIL ORIGIN
+email_from:
+  special: 'special-etd@example.edu'
+
+#SITE EMAIL REPLY_TO
+email_reply_to:
+  special: 'special-etd@exampl.edu'
+
+
+#VIREO4 DATABASE NAME
+vireo_db4_name:
+  special: 'vireo4_special'
+
+###SOURCE OF VIREO CODE
+vireo_gitsource: 'https://github.com/TexasDigitalLibrary/Vireo.git'
+
+authority_admin: someone@example.edu
+security_secret: verysecretsecret
+vireo_port: 9000
+vireo_gitbranch: main
+vireo_warversion: 4.2.7
+vireo_version_new: true
+local_authentication: alternate	#false,true
+mvn_version: 3.9.2	#maven 3.9.3 not compatible with angularJS
+nvm_version: 0.39.3
+node_version: 16.19.1
+app_config_path: '/build/appConfig.js.template'
+postgres_version: 14
+postgres_datapath: /ebs/pgsql/data
+clean_defaults: true
+config_gsuite: false  #true for TWU
+
+#NVM ORIGIN
+nvm_url: "https://raw.githubusercontent.com/nvm-sh/nvm/{{ nvm_version }}/install.sh"
+
+
+###SITE SPECIFIC VIREO4 USERNAME AND PASSWORD
+vireo_user: vireo4
+vireo_password: super_secure_password
+vireo_group: vireo4
+
+
+
+#########################################
+#PROBABLY DO NOT NEED ANY EDITING BELOW
+
+migrate_sub_dir_v4: 'private/'
+
+###NPM_HTTPD - set up home directory and choose SSL - false for localvm vagrant deployment
+vireo_homedir: /home/vireo4/
+vireo_codedir: /ebs/vireo4/
+
+
+###SITE SPECIFIC DATABASE USERNAME, NAME AND PASSWORD
+vireo_db_user:
+  special: 'vireodb'
+
+vireo_db_password:
+  special: 'super_secure_password'
+
+
+###STORAGE PATH FOR DATA FILES, LICENSES, DISSERTATIONS
+vireo_asset_storage_path:
+  special: /ebs/vireo/
+
+###LOGFILE LOCATION
+vireo_logfile_path: /ebs/vireo/logs
+
+###LOGFILE FILENAME
+vireo_logfile_name: application.log
+
+
+###EMAIL settings for application.yml - username/password overridden during institution specific deploys
+email_host: 'email-smtp.example.edu'
+email_username: 'test'
+email_password: 'test'
+
+
+### POSTGRES DATABASE CONFIG VALUES
+vireo_db_source: 'local'        # options are localvm and rds
+vireo_db_host: localhost
+vireo_db_port: 5432
+

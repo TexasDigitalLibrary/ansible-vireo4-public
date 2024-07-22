@@ -1,0 +1,53 @@
+---
+# tasks file for vireo4.newdbV4
+
+- name: install prerequisites
+  yum: name={{ item }} state=latest
+  with_items:
+    - python-psycopg2
+  tags:
+    - packages
+
+- name: stop vireo4
+  service:
+    name: vireo4
+    enabled: yes
+    state: stopped
+  become: yes
+
+- name: create backup of v4 database
+  shell: "pg_dump -U postgres {{vireo_db4_name[current_site]}} > ~/{{ vireo_db4_name[current_site]}}_backup_{{ ansible_date_time.iso8601 }}.sql"
+  become: yes
+  become_user: postgres
+  ignore_errors: yes
+
+- name: drop v4 database
+  postgresql_db:
+    name: "{{ vireo_db4_name[current_site] }}"
+    state: absent
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+#  ignore_errors: yes
+
+- name: create v4 database
+  postgresql_db:
+    name: "{{vireo_db4_name[current_site]}}"
+    state: present
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+
+#- name: start vireo4
+#  service:
+#    name: vireo4
+#    enabled: yes
+#    state: started
+#  become: yes
+
+#- name: make sure vireo4 database has been provisioned
+#  wait_for:
+#    port: 8080
+#    delay: 30
+
+

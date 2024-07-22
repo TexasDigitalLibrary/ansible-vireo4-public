@@ -1,0 +1,76 @@
+---
+# tasks file for vireo4.server
+
+- name: create group
+  group:
+    name: '{{ vireo_group }}'
+    state: present
+  become: yes
+
+- name: Ensure /ebs exists.
+  file:
+    path: '/ebs'
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+
+- name: Ensure asset storage directory exists.
+  file:
+    path: '{{ vireo_asset_storage_path[current_site] }}'
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+
+- name: Ensure asset storage directory subdir exists.
+  file:
+    path: '{{ vireo_asset_storage_path[current_site] }}/{{ migrate_sub_dir_v4 }}'
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+
+- name: Ensure vireo log directory exists.
+  file:
+    path: '{{ vireo_logfile_path }}'
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+
+- name: clear out any existing dir
+  file:
+    path: "{{ vireo_codedir }}/etd/Vireo/"
+    state: absent
+  become: yes
+  become_user: '{{vireo_user}}'
+
+- name: create vireo etd dir
+  file:
+    path: "{{ vireo_codedir }}/etd/Vireo/"
+    mode: 0755
+    state: directory
+  become: yes
+  become_user: '{{vireo_user}}'
+
+
+- name: git no SSL verify
+  shell: |
+    git config --global http.sslVerify false
+  become: yes
+  become_user: '{{vireo_user}}'
+
+- name: git repo
+  git:
+    repo: "{{ vireo_gitsource }}"
+    dest: "{{ vireo_codedir }}/etd/Vireo/"
+    version: "{{vireo_gitbranch}}"
+    force: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+
+- name: set vireo repo ownership
+  file:
+    path: "{{ vireo_codedir }}/etd/Vireo/" 
+    group: "{{ vireo_group }}"
+    owner: "{{ vireo_user }}"
+    recurse: yes
+  become: yes
+

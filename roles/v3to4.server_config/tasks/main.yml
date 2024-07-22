@@ -1,0 +1,43 @@
+---
+# tasks file for vireo4.server_config
+
+- name: Start with modified SYSTEM_Organization_Definition.json
+  template:
+    src: SYSTEM_Organization_Definition_json.j2
+    dest: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/organization/SYSTEM_Organization_Definition.json"
+    owner: "{{vireo_user}}"
+    mode: 0644
+  become: yes
+
+
+- name: Save copy of SYSTEM_Organization_Definition.json
+  copy:
+    src: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/organization/SYSTEM_Organization_Definition.json"
+    dest: "{{ vireo_codedir }}/etd/SYSTEM_Organization_Definition.json"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+
+- name: gem install pg
+  command: "gem install pg"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby SystemJson
+  command: "ruby {{ vireo_codedir }}/{{migrationcode}}/SystemJson.rb {{ vireo_codedir }}/etd/SYSTEM_Organization_Definition.json {{ vireo_codedir }}/etd/SYSTEM_Organization_Definition.json_generated {{ vireo_codedir }}/etd/SystemJson.log"
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: Move modified version of SYSTEM_Organization_Definition.json in place
+  copy:
+    src: "{{ vireo_codedir }}/etd/SYSTEM_Organization_Definition.json_generated"
+    dest: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/organization/SYSTEM_Organization_Definition.json"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  when: customize_organization
+

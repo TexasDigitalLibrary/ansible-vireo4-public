@@ -1,0 +1,24 @@
+---
+- name: Provision a Vireo4 instance locally
+  hosts: "{{ tdl_tagname[vm_location] }}"
+  become: true
+  vars_files:
+    #["TDL/vars_vireo4.yml","TDL/vars_vireo4_hosts.yml","TDL/vars_secrets.yml","TDL/vars_shibboleth.yml"]
+    ["LOCAL/vars_vireo4.yml","LOCAL/vars_vireo4_hosts.yml","LOCAL/vars_secrets.yml","LOCAL/vars_shibboleth.yml"]
+  vars:
+    db_source: "{{ vireo_db_source }}"
+  gather_facts: true
+  roles:
+    - vireo4.amzn		#amazon linux extras, git,maven,ant,java,tomcat
+    - vireo4.user		#create vireo user and give sudo
+    - vireo4.postgres_remove
+    - { role: vireo4.postgres, when: db_source == 'local' } 
+    - vireo4.apache		#apache plus certs (NEEDS TO BE UPDATED)
+    - vireo4.npm_httpd  	#NPM and httpd setup
+    - vireo4.roledb		#postgres roles
+    - vireo4.server_setup 	#get vireo4 code and ensure data paths exist
+    - vireo4.shibboleth		#get and configure shibboleth
+    - vireo4.server_customize		#modify SYSTEM_Organization_Definition to accomodate non standard committee members, configure to site, build vireo4 and start service
+    - vireo4.server_rebuildandstart		#modify SYSTEM_Organization_Definition to accomodate non standard committee members, configure to site, build vireo4 and start service
+#    - vireo4.backups		#set backups cronjob
+

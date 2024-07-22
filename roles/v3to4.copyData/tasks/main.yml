@@ -1,0 +1,44 @@
+---
+# tasks file for vireo4.copyData
+
+- name: Ensure vireo4 can access V3 data file directory.
+  file:
+    path: "/ebs"
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+  become: yes
+
+- name: Ensure V3 data file directory exists.
+  file:
+    path: "{{ migrate_base_dir_v3[current_site] }}"
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+    mode: 0777
+    recurse: yes
+  become: yes
+
+- name: Copy vireo3 data files
+  ansible.builtin.unarchive:
+    src: "{{ vireo_db3_datapath }}/{{ item }}"
+    dest: "{{ migrate_base_dir_v3[current_site] }}"
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    mode: 0777
+  with_items:
+    - "{{ vireo_db3_attachment[current_site] }}"
+  become: yes
+  when: vireo_db3_attachment[current_site] != 'NONE'
+
+
+- name: Ensure V4 data file directory exists.
+  file:
+    path: "{{ migrate_base_dir_v4[current_site] }}/{{ migrate_sub_dir_v4 }}"
+    owner: "{{ vireo_user }}"
+    group: "{{ vireo_group }}"
+    state: directory
+    mode: 0777
+    recurse: yes
+  become: yes
+

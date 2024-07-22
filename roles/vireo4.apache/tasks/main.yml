@@ -1,0 +1,15 @@
+---
+# tasks file for tdl.apache
+- name: Install Apache2
+  yum:
+    name: ['httpd', 'httpd-tools', 'httpd-devel', 'mod_proxy_html', 'mod_ssl']
+    state: present
+
+# Restart Apache in all cases
+- service:
+    name: httpd
+    enabled: yes
+    state: restarted
+  become: yes
+  ignore_errors: yes
+

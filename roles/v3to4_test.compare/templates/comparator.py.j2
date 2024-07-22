@@ -1,0 +1,9 @@
+import comp as c
+
+c.migrateAll('{{ vireo_db3_name[current_site] }}','{{ vireo_db3_name_new[current_site] }}','{{ vireo_db4_name[current_site] }}','{{ vireo_db4_name_new[current_site] }}','{{ vireo_db4_name_direct[current_site] }}')
+c.showStats('{{ vireo_db_user[current_site] }}','{{ vireo_db_password[current_site] }}','{{ vireo_db3_name[current_site] }}','{{ vireo_db3_name_new[current_site] }}')
+c.showStats('{{ vireo_db_user[current_site] }}','{{ vireo_db_password[current_site] }}','{{ vireo_db4_name_new[current_site] }}','{{ vireo_db4_name_direct[current_site] }}')
+
+
+
+

@@ -1,0 +1,19 @@
+
+##SERVERNAME: SPECIFIC TO TDL AND HOW WE WORK WITH OUR HOSTED SYSTEMS
+#top level
+tdl_tagname:
+  localvm: all
+  special: tag_Name__example
+
+
+#PUBLIC URL USED BY HOSTED SITE
+project_hostname:
+  localvm: localhost
+  special: vireo.example.edu
+
+
+#UNPUBLISHED URL FOR ADMIN SIGNIN
+project_hostname_admin:
+  localvm: localhost
+  special: vireo-alternate.example.edu
+

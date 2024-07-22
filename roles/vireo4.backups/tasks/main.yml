@@ -1,0 +1,56 @@
+---
+- name: Install boto3
+  shell: |
+    pip3 install boto3
+  become_user: "{{vireo_user}}"
+#  become: yes
+  ignore_errors: yes
+
+- name: Ensure backup directory exists
+  file:
+    path: "/ebs/backup/"
+    owner: postgres
+    group: postgres
+    state: directory
+    mode: 0777
+    recurse: yes
+  become: yes
+
+- name: Create directory for backup scripts
+  file:
+    path: "/opt/tdl/"
+    owner: postgres
+    group: postgres
+    state: directory
+    mode: 0777
+    recurse: yes
+  become: yes
+
+- name: Copy vireo3 data files
+  ansible.builtin.unarchive:
+    src: "./{{ item }}"
+    dest: "/opt/tdl/"
+    owner: postgres
+    group: postgres
+    mode: 0777
+  with_items:
+    - backups.tar
+  become: yes
+
+- name: set cronjob
+  ansible.builtin.cron:
+    name: "set daily backups"
+    minute: "15"
+    hour: "16"
+    job: "python3 /opt/tdl/admin/scripts/backups/snapshot.py -f daily -r 14  > /tmp/backups-snapshots-daily.log 2>&1"
+
+- name: set cronjob
+  ansible.builtin.cron:
+    name: "set monthly backups"
+    minute: "30"
+    hour: "0"
+    day: "1"
+    job: "python3 /opt/tdl/admin/scripts/backups/snapshot.py -f monthly -r 12  > /tmp/backups-snapshots-monthly.log 2>&1"
+
+
+

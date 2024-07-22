@@ -1,0 +1,12 @@
+---
+vireo_db4site_datapath: '/home/ec2-user/data/'
+
+vireo_db4site_datafile:
+  special: 'vireo4_special_latest.sql'
+
+vireo_assets_datafile:
+#  special: 'vireo4_special_assets.tar'
+
+vireo_db4site_name:
+  special: 'vireo4_special'
+

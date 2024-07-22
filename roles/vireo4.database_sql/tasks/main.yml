@@ -1,0 +1,53 @@
+---
+
+- name: copy sql commands
+  copy:
+    src: "{{ item }}"
+    dest: "/var/lib/pgsql/"
+    owner: postgres
+  with_fileglob: "files/*"
+  become_user: postgres
+  become: true
+
+- name: run sql commands alter_nsfg
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/alter_nsfg.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands graduationDate 1
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/graduationDate_migrate_validators_1.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands graduationDate 2
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/graduationDate_migrate_baddata_2.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands graduationDate 3
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/graduationDate_migrate_gradsem_3.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands graduationDate 4
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/graduationDate_migrate_gradsem_4.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands graduationDate 5
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/defenseDate_migrate_5.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands final_add
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/final_add.sql"
+  become_user: postgres
+  become: true
+  when: run_sql
+
+#- name: run sql commands NSFG_clean1
+#  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/NSFG_clean1.sql"
+#  become_user: postgres
+#  become: true
+#  when: vireo_version_new
+

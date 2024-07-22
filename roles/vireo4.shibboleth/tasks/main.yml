@@ -1,0 +1,46 @@
+---
+# tasks file for vireo4.server
+
+- name: Get Shibboleth
+  template:
+    src: shibboleth.repo.j2
+    dest: "/etc/yum.repos.d/shibboleth.repo"
+    owner: "root"
+    mode: 0764
+  become: yes
+  when: config_shibboleth
+
+- name: Install Shibboleth
+  yum:
+    name: ['shibboleth.x86_64']
+    state: present
+  when: config_shibboleth
+
+- name: Configure shibboleth2.xml
+  template:
+    src: shibboleth2.xml.j2
+    dest: "/etc/shibboleth/shibboleth2.xml"
+    owner: "root"
+    mode: 0644
+  become: yes
+  when: config_shibboleth
+
+- name: Configure attribute-map.xml
+  template:
+    src: attribute-map.xml.j2
+    dest: "/etc/shibboleth/attribute-map.xml"
+    owner: "root"
+    mode: 0644
+  become: yes
+  when: config_shibboleth and not config_gsuite
+
+- name: Configure attribute-map.xml
+  template:
+    src: attribute-map_GSUITE.xml.j2
+    dest: "/etc/shibboleth/attribute-map.xml"
+    owner: "root"
+    mode: 0644
+  become: yes
+  when: config_shibboleth and config_gsuite
+
+

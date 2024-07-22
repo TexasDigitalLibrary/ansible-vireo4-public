@@ -1,0 +1,72 @@
+---
+# tasks file for vireo4.existingdbV4
+
+- name: stop vireo4
+  service:
+    name: vireo4
+    enabled: yes
+    state: stopped
+  become: yes
+
+
+- name: drop v4 database "{{ vireo_db4site_name[current_site] }}"
+  postgresql_db:
+    name: "{{ vireo_db4site_name[current_site] }}"
+    state: absent
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name: create v4 database "{{ vireo_db4site_name[current_site] }}"
+  postgresql_db:
+    name: "{{ vireo_db4site_name[current_site] }}"
+    state: present
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name:  copying vireo4 database dump
+  copy:
+    src: "{{ vireo_db4site_datapath }}/{{ vireo_db4site_datafile[current_site] }}"
+    dest: "/tmp/{{ vireo_db4site_datafile[current_site] }}"
+    mode: 0777
+  become: yes
+
+- name: build vireo4 database from dump
+  postgresql_db:
+    name: "{{ vireo_db4site_name[current_site] }}"
+    state: restore
+    target: "/tmp/{{ vireo_db4site_datafile[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name: grant v4 privileges to db_user
+  postgresql_privs:
+    db: "{{ vireo_db4site_name[current_site] }}"
+    role: "{{ vireo_db_user[current_site] }}"
+    objs: ALL_IN_SCHEMA
+    privs: SELECT,INSERT,UPDATE,DELETE
+  become: yes
+  become_user: postgres
+
+
+- name:  copy assets file if availabe
+  copy:
+    src: "{{ vireo_db4site_datapath }}/{{ vireo_assets_datafile[current_site] }}"
+    dest: "/tmp/{{ vireo_assets_datafile[current_site] }}"
+    mode: 0777
+  become: yes
+  ignore_errors: yes
+
+- name: start vireo4
+  service:
+    name: vireo4
+    enabled: yes
+    state: started
+  become: yes
+
+#- name: OPTIONAL CMD   ALTER DATABASE db RENAME TO newdb;
+#  ansible.builtin.debug:
+#    msg: OPTIONAL CMD   ALTER DATABASE db RENAME TO newdb;
+
+
