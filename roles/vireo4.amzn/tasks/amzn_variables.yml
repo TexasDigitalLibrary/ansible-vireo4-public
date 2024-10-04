@@ -1,0 +1,6 @@
+---
+# variables
+- name: Define amazon_linux_extras_packages
+  set_fact:
+    amazon_linux_extras_packages: "{{ __amazon_linux_extras_packages | list }}"
+  when: amazon_linux_extras_packages is not defined

@@ -1,0 +1,89 @@
+---
+# tasks file for vireo4.amzn
+
+# Variables
+- import_tasks: amzn_variables.yml
+
+- name: Enable amazon-linux-extras packages
+  shell: "amazon-linux-extras enable {{ item }}"
+  with_items: "{{ amazon_linux_extras_packages }}"
+  become: true
+
+- name: Install the 'Development tools' package group
+  yum:
+    name:
+      - yum-utils
+      - "@Development tools"
+    state: present
+    lock_timeout: 10
+#  when: vm_location == 'localvm'
+
+#- name: Install the 'Development tools' package group
+#  yum:
+#    name: "@Development tools"
+#    state: present
+#  when: vm_location != 'localvm'
+
+- name: Install common packages OLD WAY
+  yum:
+    name: "{{ packages }}"
+    state: present
+    lock_timeout: 180
+  vars:
+    packages:
+      - git
+      - ant
+      - maven
+      - java-1.8.0-openjdk
+      - java-1.8.0-openjdk-devel
+  when: vm_location == 'localvm' and not vireo_version_new
+
+- name: Install common packages NEW WAY
+  yum:
+    name: "{{ packages }}"
+    state: present
+    lock_timeout: 180
+  vars:
+    packages:
+      - git
+      - ant
+  when: vm_location == 'localvm' and vireo_version_new
+  
+- name: java11 NEW
+  shell: "amazon-linux-extras install -y java-openjdk11"
+  become: true
+  when: vireo_version_new
+
+- name: java11 NEW dev
+  shell: "yum install -y java-11-openjdk-devel"
+  become: true
+  when: vireo_version_new
+
+#FSS
+- name: Select java 11
+#  shell: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.18.0.10-1.amzn2.0.1.x86_64/bin/java
+#  shell: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.amzn2.0.1.x86_64/bin/java
+#  shell: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.21.0.9-1.amzn2.0.1.x86_64/bin/java
+#  shell: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.22.0.7-1.amzn2.0.1.x86_64/bin/java
+#  shell: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-11.0.23.0.9-2.amzn2.0.1.x86_64/bin/java
+  shell: update-alternatives --set java {{ java_version_alternatives }}
+  become: yes
+  when: vireo_version_new
+
+- name: Maven version
+#  shell: "wget https://dlcdn.apache.org/maven/maven-3/{{ mvn_version }}/binaries/apache-maven-{{ mvn_version }}-bin.tar.gz"
+  shell: "wget https://archive.apache.org/dist/maven/maven-3/{{ mvn_version }}/binaries/apache-maven-{{ mvn_version }}-bin.tar.gz"
+  become: true
+  when: vireo_version_new
+
+- name: Maven untar
+  shell: "tar xvf apache-maven-{{ mvn_version }}-bin.tar.gz -C /opt"
+  become: true
+  when: vireo_version_new
+
+- name: Maven link
+  shell: "sudo ln -sf /opt/apache-maven-{{ mvn_version }} /opt/maven"
+  become: true
+  ignore_errors: yes
+  when: vireo_version_new
+

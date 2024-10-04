@@ -1,0 +1,82 @@
+---
+# tasks file for roles/vireo4.migrate
+
+- name: run ruby migrations Init
+  shell: |
+    ruby MigrateInit1.rb > init1.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+#  async: 1000
+#  poll: 0
+#  register: ruby_sleeper
+  become: yes
+  become_user: "{{ vireo_user }}"
+  ignore_errors: yes
+
+- name: run ruby migrations Org
+  shell: |
+    ruby MigrateOrg2.rb > org2.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations Users
+  shell: |
+    ruby MigrateUsers3.rb > users3.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations Vocab Word
+  shell: |
+    ruby MigrateVocabularyWord4.rb > vw4.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations Submissions
+  shell: |
+    ruby MigrateSubmission5.rb > sub5.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations ActionLog
+  shell: |
+    ruby MigrateActionLog6.rb > al6.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations Custom Actions
+  shell: |
+    ruby MigrateCustomActions7.rb > ca7.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: run ruby migrations Final
+  shell: |
+    ruby MigrateFinal8.rb > fin8.log
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+
+- name: restore settings from file created in vireo4.migrate
+  shell: |
+    ruby RestoreManagedConfig.rb
+  args:
+    chdir: "{{ vireo_codedir }}/{{migrationcode}}/"
+  become: yes
+  become_user: "{{ vireo_user }}"
+  ignore_errors: yes
+
+
+

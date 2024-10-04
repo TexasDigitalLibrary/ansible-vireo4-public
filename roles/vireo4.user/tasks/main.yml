@@ -1,0 +1,40 @@
+---
+# tasks file for vireo4.user
+
+
+- name: create group
+  group:
+    name: '{{ vireo_group }}'
+    state: present
+  become: yes
+
+#- name: pip install
+#  command: "amazon-linux-extras install -y python3"
+#  ignore_errors: yes
+#  become: yes
+
+#- name: python-3 passlib install
+#  command: "amazon-linux-extras install -y python3-passlib"
+#  ignore_errors: yes
+#  become: yes
+
+#- name: install passlib
+#  command: "pip install python3-passlib"
+#  become: yes
+
+- name: create user (requires 'pip install passlib')
+  user:
+    name: '{{ vireo_user }}'
+    password: "{{ vireo_password | default(omit) }}"
+    create_home: true
+    state: present
+    group: '{{ vireo_group }}'
+  become: yes
+
+- name: Give sudo permissions 
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: '{{ vireo_user }} ALL=(ALL)  ALL'
+    validate: 'visudo -cf %s'
+

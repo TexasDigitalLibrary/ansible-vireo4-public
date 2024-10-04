@@ -1,0 +1,9 @@
+---
+#- name: Install JS dependencies
+#  shell: |
+#    source /home/{{ vireo_user }}/.bashrc
+#    /home/{{ vireo_user }}/.nvm/versions/node/v{{ node_version }}/bin/yarn install
+#  args:
+#    chdir: "{{ vireo_homedir }}"
+#  become: true
+#  become_user: "{{ vireo_user }}"

@@ -1,0 +1,62 @@
+##SERVER: CHOOSE LOCAL OR REMOTE
+
+#################################################
+#DATA SOURCE DIRECTORY: location of SQL database files for vireo3 (for migration) or vireo4 (for restoration)
+vireo_db3_datapath: '/home/ec2-user/data/'
+
+vireo4_configpath: '/home/ec2-user/data/'
+
+
+#DATAFILE NAME FOR VIREO3 DATABASE
+vireo_db3_datafile:
+  special: 'vireo3_special_latest.sql'
+
+vireo4_configfile:
+  special: NONE
+
+###############################
+#LOCATION OF TAR FILE CONTAINING ASSETS - TYPICALLY ONLY FOR REPLICATING A FEW SUBMISSIONS FOR TESTING
+vireo_db3_attachment:
+  special: NONE
+
+#DATABASE NAME OF VIREO3 DATABASE - V3 DATABASE IS REPLICATED AS A STARTING POINT FOR MIGRATION
+vireo_db3_name:
+  special: 'vireo3_special'
+
+#VALUE FOR SETTING MIGRATION'S MigrateGlobal INSTITUTION VALUE 
+migrate_institution:
+  special: SPECIAL
+
+#SET THE LIST OF ADMINS IN VIREO4 IN EACH SITE
+migrate_admin_email:
+  special: "['admin@tdl.org']"
+
+
+#############################################
+
+#SOURCE OF VIREO3 ASSETS TO BE REMAPPED TO migrate_base_dir_v4
+migrate_base_dir_v3:
+  special: /ebs/special/attachments/
+
+#DESTINATION OF VIREO4 ASSETS AS MAPPED FROM V3
+migrate_base_dir_v4:
+  special: /ebs/vireo/
+
+#SUBDIR FOR V4 ASSETS
+migrate_sub_dir_v4: private/
+
+#GIT BASE ORIGIN OF MIGRATION SOFTWARE
+git_origin: github.com/TexasDigitalLibrary/
+
+#GIT SPECIFIC ORIGIN OF MIGRATION SOFTWARE FOR GENERIC USE
+#migrationcode: vireo3_to_vireo4_public
+#gitlab_migrate_branch: master
+migrationcode: vireo3_to_vireo4
+gitlab_migrate_branch: main
+
+#GIT SPECIFIC ORIGIN OF MIGRATION SOFTWARE FOR SITE SPECIFIC USE
+#migrationcode_sitespecific: vireo3_to_vireo4_tdl
+#gitlab_migrate_branch_sitespecific: master
+migrationcode_sitespecific: vireo3_to_vireo4_tdl
+gitlab_migrate_branch_sitespecific: main
+

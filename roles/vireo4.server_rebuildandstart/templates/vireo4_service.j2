@@ -1,0 +1,16 @@
+[Unit]
+Description= Vireo 4 ETD service
+[Service]
+User=vireo4
+#This must point to the Vireo base path
+WorkingDirectory={{ vireo_codedir }}/etd/Vireo/
+#This is a path to a bash script which launches the war file
+ExecStart={{ vireo_codedir }}/etd/vireo4.sh
+ExecStop=/bin/pkill -f 'java -jar {{ vireo_codedir }}/'
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+

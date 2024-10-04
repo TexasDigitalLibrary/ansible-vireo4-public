@@ -1,0 +1,16 @@
+---
+# tasks file for roles/vireo4.migrate
+
+- name: Install psycopg2
+  shell: |
+    pip3 install psycopg2-binary
+  become: yes
+
+- name: update compare.py
+  template:
+    src: comparator.py.j2
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/comparator.py"
+    owner: "{{vireo_user}}"
+    mode: 0644
+  become: yes
+

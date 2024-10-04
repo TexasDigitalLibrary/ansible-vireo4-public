@@ -1,0 +1,24 @@
+---
+- name: Update the vireo code and migration code of a Vireo4 instance
+  hosts: "{{ tdl_tagname[vm_location] }}"
+  become: true
+  vars_files:
+    #["TDL/vars_vireo4.yml","TDL/vars_vireo4_hosts.yml","TDL/vars_secrets.yml","TDL/vars_migration.yml"]
+    ["LOCAL/vars_vireo4.yml","LOCAL/vars_vireo4_hosts.yml","LOCAL/vars_secrets.yml","LOCAL/vars_migration.yml"]
+  vars:
+    db_source: "{{ vireo_db_source }}"
+  gather_facts: true
+  roles:
+    - v3to4.newdbV3		#create V3 database replica on server
+    - v3to4.copyData		#copy vireo3 file assets for testing if needed (for local dev)
+    - v3to4.migrate		#pull in migration software from github
+    - v3to4.newdbV4		#backup existing V4 and create new blank V4 database
+    - v3to4.server_config	#rebuild server
+    - vireo4.server_customize	#rebuild server, mainly to populate V4 to initial state
+    - vireo4.server_rebuildandstart #rebuild server, mainly to populate V4 to initial state
+
+
+
+
+
+

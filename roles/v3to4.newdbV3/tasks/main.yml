@@ -1,0 +1,56 @@
+---
+# tasks file for vireo4.newdbV3
+
+#  sudo: true
+- name: install prerequisites
+  yum: name={{ item }} state=latest
+  with_items:
+    - python-psycopg2
+  tags:
+    - packages
+
+#- name: Install psycopg2
+#  shell: |
+#    pip3 install psycopg2-binary
+#  become: yes
+
+- name: drop v3 database "{{ vireo_db3_name[current_site] }}"
+  postgresql_db:
+    name: "{{ vireo_db3_name[current_site] }}"
+    state: absent
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name: create v3 database "{{ vireo_db3_name[current_site] }}"
+  postgresql_db:
+    name: "{{ vireo_db3_name[current_site] }}"
+    state: present
+    owner: "{{ vireo_db_user[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name:  copying vireo3 database dump
+  copy:
+    src: "{{ vireo_db3_datapath }}/{{ vireo_db3_datafile[current_site] }}"
+    dest: "/tmp/{{ vireo_db3_datafile[current_site] }}"
+    mode: 0777
+  become: yes
+
+- name: build vireo3 database from dump
+  postgresql_db:
+    name: "{{ vireo_db3_name[current_site] }}"
+    state: restore
+    target: "/tmp/{{ vireo_db3_datafile[current_site] }}"
+  become: yes
+  become_user: postgres
+
+- name: grant v3 privileges to db_user
+  postgresql_privs:
+    db: "{{ vireo_db3_name[current_site] }}"
+    role: "{{ vireo_db_user[current_site] }}"
+    objs: ALL_IN_SCHEMA
+    privs: SELECT,INSERT,UPDATE,DELETE
+  become: yes
+  become_user: postgres
+

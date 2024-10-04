@@ -1,0 +1,29 @@
+---
+# tasks file for vireo4.server
+#- name: Install psycopg2
+#  shell: |
+#    pip3 install psycopg2-binary
+#  become: yes
+
+- name: create role
+  postgresql_user:
+    name: "{{ vireo_db_user[current_site] }}"
+    password: "{{ vireo_db_password[current_site] | default(omit) }}"
+    state: present
+#    password: "{{ vireo_db_password[current_site] }} | password_hash('bcrypt') }}"
+#    password: "{{ vireo_db_password[current_site] }} | password_hash('crypt') }}"
+#    password: "{{ vireo_db_password[current_site] }} | password_hash('sha512') }}"
+  become: yes
+  become_user: postgres
+  #become_flags: '-s /bin/sh'
+#CREATE ROLE [rolename] PASSWORD '[rolename'];
+
+
+- name: "create database {{ vireo_db4_name[current_site] }}"
+  postgresql_db:
+    name: "{{vireo_db4_name[current_site]}}"
+    owner: "{{ vireo_db_user[current_site] }}"
+    state: present
+  become: yes
+  become_user: postgres
+

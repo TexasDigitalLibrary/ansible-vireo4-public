@@ -1,0 +1,72 @@
+---
+
+- name: Create vireo Apache configuration
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  template:
+    src: vireo.conf.j2
+    dest: '/etc/httpd/conf.d/vireo.conf'
+  when: not use_ssl
+
+- name: Move old Apache SSL configuration
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  command: mv /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/ssl.conf_ORIG
+  become: yes
+  when: use_ssl
+  ignore_errors: yes
+
+- name:  copying SSL keys(server.key)
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  copy:
+    src: "{{ apache_ssl_cert_key }}"
+    dest: "{{ apache_ssl_cert_key_dest }}"
+    mode: 0400
+  when: use_ssl
+
+- name:  copying SSL keys(cert.cer)
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  copy:
+    src: "{{ apache_ssl_cert_cer }}"
+    dest: "{{ apache_ssl_cert_cer_dest }}"
+    mode: 0400
+  when: use_ssl
+
+- name:  copying SSL keys(interm.cer)
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  copy:
+    src: "{{ apache_ssl_cert_interm }}"
+    dest: "{{ apache_ssl_cert_interm_dest }}"
+    mode: 0400
+  when: use_ssl
+
+- name: Create vireo Apache SSL configuration
+  vars:
+    use_ssl: "{{ apache_use_ssl }}"
+  template:
+    src: vireo.ssl.conf.j2
+    dest: '/etc/httpd/conf.d/ssl.conf'
+  when: use_ssl
+
+
+- name: Add config to default Apache config
+  blockinfile:
+    path: /etc/httpd/conf/httpd.conf
+    create: yes
+    content: |
+      ServerName {{ project_hostname[vm_location] }}:80
+      ServerAdmin info@tdl.org
+      UseCanonicalName On
+
+      <VirtualHost *:80>
+        ServerName {{ project_hostname[vm_location] }}
+        # redirect all traffic to https
+        RedirectMatch permanent ^/(.*)$ https://{{ project_hostname[vm_location] }}/$1
+
+        ErrorLog logs/error_log
+        CustomLog logs/access_log combined
+      </VirtualHost>
+    insertafter: EOF

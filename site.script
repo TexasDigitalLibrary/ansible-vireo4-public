@@ -1,0 +1,10 @@
+#TIME
+#UNT: 108 minutes
+
+#COPY A DATABASE TO vireo4_special_latest.sql BEFORE USING
+#source /shared_storage/ansible/devops/ansible_ground.sh staging
+#ansible-playbook vireo4.yml --extra-vars "current_site=special"
+#ansible-playbook migration.yml --extra-vars "current_site=special"
+#ansible-playbook update_migrationcode_only.yml --extra-vars "current_site=special"
+#ansible-playbook site_replication.yml --extra-vars "current_site=special"
+

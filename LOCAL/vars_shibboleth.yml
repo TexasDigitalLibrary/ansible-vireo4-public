@@ -1,0 +1,27 @@
+### SETTINGS FOR SHIBBOLETH/GSuite/QuickLaunch
+
+
+##SHIBBOLETH2.XML
+shibboleth_appdef_entityid:
+  special: https://sp.example.org/shibboleth
+
+shibboleth_sso_entityid:
+  special: https://idp.example.org/idp/shibboleth
+
+shibboleth_federation:
+  special: false
+
+shibboleth_sso_protocol:
+  special: false
+
+shibboleth_sso_discoveryurl:
+  special: https://ds.example.org/DS/WAYF
+
+shibboleth_metadataprovider_path:
+  special: /var/cache/shibboleth/tdlIdp.txt
+
+shibboleth_metadataprovider_uri:
+  special: https://shibboleth.example.edu/idp/shibboleth
+
+
+

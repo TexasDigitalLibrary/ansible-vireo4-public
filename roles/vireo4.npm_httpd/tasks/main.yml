@@ -1,0 +1,9 @@
+---
+# Dependencies tasks
+- import_tasks: dependencies.yml
+
+# Dependencies tasks
+- import_tasks: install.yml
+
+# Apache tasks
+- import_tasks: apache_setup.yml

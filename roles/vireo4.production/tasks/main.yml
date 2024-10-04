@@ -1,0 +1,103 @@
+---
+# tasks file for vireo4.server
+
+- name: edit src/main/resources/application.yaml (might be localhost or contain -migrate-)
+  replace:
+    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
+    regexp: '-migrate-'
+    replace: '-'
+    owner: "{{ vireo_user }}"
+  become: yes
+  become_user: '{{ vireo_user }}'
+
+- name: edit src/main/resources/application.yaml (might be localhost or contain -migrate-)
+  replace:
+    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
+    regexp: 'hibernate.ddl-auto: update'
+    replace: 'hibernate.ddl-auto: none'
+    owner: "{{ vireo_user }}"
+  become: yes
+  become_user: '{{ vireo_user }}'
+
+- name: edit /etc/httpd/conf.d/ssl.conf
+  replace:
+    path: "/etc/httpd/conf.d/ssl.conf"
+    regexp: '-migrate-'
+    replace: '-'
+    #owner: "root"
+  become: yes
+  when: apache_use_ssl
+
+- name: edit /etc/httpd/conf.d/vireo.conf
+  replace:
+    path: "/etc/httpd/conf.d/vireo.conf"
+    regexp: '-migrate-'
+    replace: '-'
+    #owner: "root"
+  become: yes
+  when: not apache_use_ssl
+
+- name: edit /etc/shibboleth/shibboleth2.xml
+  replace:
+    path: "/etc/shibboleth/shibboleth2.xml"
+    regexp: '-migrate-'
+    replace: '-'
+    #owner: "root"
+  become: yes
+  when: config_shibboleth
+
+
+- name: manually run bashrc
+  shell: |
+    source "{{ vireo_codedir }}/.bashrc"
+  become: yes
+  become_user: '{{ vireo_user }}'
+
+- name: confirm npm
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    npm --version
+  become_user: '{{ vireo_user }}'
+
+- name: change to user vireo and build war file
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    mvn clean package -DskipTests -Dproduction -Dassets.uri=file://{{ vireo_asset_storage_path[current_site] }}
+  args:
+    chdir: "{{vireo_codedir}}/etd/Vireo/"
+  become_user: '{{ vireo_user }}'
+
+- name: Make sure daemon is reloaded
+  shell: systemctl daemon-reload
+  ignore_errors: yes
+
+- name: Make sure daemon is enabled
+  shell: systemctl enable vireo4.service
+  ignore_errors: yes
+
+- name: restart vireo4
+  service:
+    name: vireo4
+    enabled: yes
+    state: restarted
+  become: yes
+
+- name: restart shibboleth
+  service:
+    name: shibd
+    enabled: yes
+    state: restarted
+  become: yes
+  when: config_shibboleth
+
+- name: restart httpd
+  service:
+    name: httpd
+    enabled: yes
+    state: restarted
+  become: yes
+

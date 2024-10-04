@@ -1,0 +1,113 @@
+---
+# tasks file for vireo4.server
+
+
+- name: confirm npm
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    npm --version
+  become_user: '{{ vireo_user }}'
+
+- name: SHOW JAVA VERSIONS
+  shell: |
+    /usr/lib/jvm/java-1.8.0/bin/javac -version
+    /usr/lib/jvm/java-11/bin/javac -version
+    javac -version
+  ignore_errors: yes
+  become: yes
+
+- name: manually run bashrc
+  shell: |
+    source "{{ vireo_homedir }}/.bashrc"
+  become: yes
+  become_user: '{{ vireo_user }}'
+
+- name: change to user vireo and build war file oldstyle
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    mvn clean package -DskipTests -Dproduction -Dassets.uri=file://{{ vireo_asset_storage_path[current_site] }}
+  args:
+    chdir: "{{vireo_codedir}}/etd/Vireo/"
+  become_user: '{{ vireo_user }}'
+  when: not vireo_version_new
+
+- name: change to user vireo and build war file newstyle
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    /opt/maven/bin/mvn clean package -DskipTests -Dproduction -Dassets.uri=file://{{ vireo_asset_storage_path[current_site] }}
+  args:
+    chdir: "{{vireo_codedir}}/etd/Vireo/"
+  become_user: '{{ vireo_user }}'
+  when: vireo_version_new
+
+
+#IF PROBLEMS WITH BUILDING WAR TRY:
+#  remove ~/.m2 directory
+#  remove ~/etd/Vireo/node_modules directory
+#  if bootstrap-sass/assets does not exist message, then:
+#     npm install bootstrap-sass
+#  If still problem check npm/node/ versions
+#     npm install -g npm
+#     nvm install node
+#     nvm install angularjs
+
+- name: Copy vireo service script
+  template:
+    src: vireo4_sh.j2
+    dest: "{{ vireo_codedir }}/etd/vireo4.sh" 
+    owner: "{{vireo_user}}"
+    mode: 0764
+  become: yes
+
+- name: Copy vireo service
+  template:
+    src: vireo4_service.j2
+    dest: /lib/systemd/system/vireo4.service
+    owner: "{{vireo_user}}"
+    mode: 0755
+  become: yes
+
+- name: Enable vireo service
+  systemd:
+    name: vireo4
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+    state: restarted
+
+- name: Make sure daemon is reloaded
+  shell: systemctl daemon-reload
+  ignore_errors: yes
+
+- name: Make sure daemon is enabled
+  shell: systemctl enable vireo4.service
+  ignore_errors: yes
+
+- name: restart vireo4
+  service:
+    name: vireo4
+    enabled: yes
+    state: restarted
+  become: yes
+
+- name: restart shibboleth
+  service:
+    name: shibd
+    enabled: yes
+    state: restarted
+  become: yes
+  when: config_shibboleth
+
+- name: restart httpd
+  service:
+    name: httpd
+    enabled: yes
+    state: restarted
+  become: yes
+

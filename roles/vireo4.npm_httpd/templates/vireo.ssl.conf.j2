@@ -1,0 +1,101 @@
+LoadModule ssl_module modules/mod_ssl.so
+Listen 443
+
+<VirtualHost *:80>
+    ServerName {{ project_hostname[vm_location] }}
+    Redirect / https://{{ project_hostname[vm_location] }}
+</VirtualHost>
+
+<VirtualHost *:443>
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyPreserveHost On
+    UseCanonicalName On
+    ServerName {{ project_hostname_admin[vm_location] }}
+
+    ProxyPass / http://localhost:{{ vireo_port }}/
+#IF LIST PAGE NOT COMING UP THEN TRY
+#    ProxyPass / http://localhost:{{ vireo_port }}/ connectiontimeout=300 timeout=300
+
+    ProxyPassReverse / http://localhost:{{ vireo_port }}/
+
+    ProxyRequests Off
+    ProxyPass /robots.txt !
+    RewriteEngine on
+    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+    RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC]
+    RewriteRule .* ws://localhost:{{ vireo_port }}%{REQUEST_URI} [P]
+
+    ErrorLog    logs/ssl_error_log
+    TransferLog logs/ssl_access_log
+    LogLevel info
+    SSLEngine on
+    SSLProtocol all -SSLv2
+    SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+
+    SSLCertificateFile /etc/pki/tls/certs/__tdl_org_cert.cer
+    SSLCertificateKeyFile /etc/pki/tls/certs/wild_tdl_org_server.key
+    SSLCertificateChainFile /etc/pki/tls/certs/__tdl_org_interm.cer
+
+    CustomLog logs/ssl_request_log \
+              "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+</VirtualHost>
+
+<VirtualHost *:443>
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyPreserveHost On
+    UseCanonicalName On
+    ServerName {{ project_hostname[vm_location] }}
+
+    <Location />
+        AuthType shibboleth
+        shibrequiresession Off
+        ShibUseHeaders on
+        Require shibboleth
+    </Location>
+
+    <Location /auth>
+        AuthType shibboleth
+        shibrequiresession On
+        Require valid-user
+        ShibUseHeaders on
+    </Location>
+
+
+    ProxyPass / http://localhost:{{ vireo_port }}/
+#IF LIST PAGE NOT COMING UP THEN TRY
+#    ProxyPass / http://localhost:{{ vireo_port }}/ connectiontimeout=300 timeout=300
+
+    ProxyPassReverse / http://localhost:{{ vireo_port }}/
+
+
+    ProxyRequests Off
+    ProxyPass /robots.txt !
+    RewriteEngine on
+    RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC]
+    RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC]
+    RewriteRule .* ws://localhost:{{ vireo_port }}%{REQUEST_URI} [P]
+
+    ErrorLog    logs/ssl_error_log
+    TransferLog logs/ssl_access_log
+    LogLevel info
+    SSLEngine on
+    SSLProtocol all -SSLv2
+    SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
+
+#    SSLCertificateFile /etc/pki/tls/certs/wild__tdl_org_cert-3-2020-renew.cer
+#    SSLCertificateKeyFile /etc/pki/tls/certs/wild_tdl_org_server.key
+#    SSLCertificateChainFile /etc/pki/tls/certs/wild__tdl_org_root_interm-5-2020-renew.cer
+
+#    SSLCertificateFile /etc/pki/tls/certs/wild__tdl_org_cert-3.cer
+#    SSLCertificateKeyFile /etc/pki/tls/certs/wild_tdl_org_server.key
+#    SSLCertificateChainFile /etc/pki/tls/certs/wild__tdl_org_interm-5.cer
+
+    SSLCertificateFile /etc/pki/tls/certs/__tdl_org_cert.cer
+    SSLCertificateKeyFile /etc/pki/tls/certs/wild_tdl_org_server.key
+    SSLCertificateChainFile /etc/pki/tls/certs/__tdl_org_interm.cer
+
+    CustomLog logs/ssl_request_log \
+              "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+</VirtualHost>

@@ -1,0 +1,9 @@
+---
+# vars file for tdl.common
+__amazon_linux_extras_packages:
+  - tomcat8.5
+  - java-openjdk11
+#  - tomcat9
+#  - tomcat10.1
+#  - memcached1.5
+#FSS
