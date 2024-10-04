@@ -86,6 +86,16 @@
   become_user: "{{vireo_user}}"
   ignore_errors: yes
 
+- name: copy site specific migration file FixApproveDate.rb to migration directory
+  copy:
+    src: "{{ vireo_codedir }}/{{migrationcode_sitespecific}}/FixApproveDate.rb"
+    dest: "{{ vireo_codedir }}/{{migrationcode}}/FixApproveDate.rb"
+    owner: "{{vireo_user}}"
+    remote_src: yes
+  become: yes
+  become_user: "{{vireo_user}}"
+  ignore_errors: yes
+
 - name: copy python test comp.py
   copy:
     src: "{{ vireo_codedir }}/{{migrationcode_sitespecific}}/comp.py"

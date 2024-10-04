@@ -39,15 +39,52 @@
   become_user: postgres
   become: true
 
-- name: run sql commands final_add
-  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/final_add.sql"
-  become_user: postgres
-  become: true
-  when: run_sql
-
-#- name: run sql commands NSFG_clean1
-#  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/NSFG_clean1.sql"
+#- name: run sql commands final_add
+#  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/final_add.sql"
 #  become_user: postgres
 #  become: true
-#  when: vireo_version_new
+#  when: run_sql
+
+
+- name: run sql commands 428_submission_action_log_column_0.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_action_log_column_0.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_submission_list_column_constraints_1.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_list_column_constraints_1.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands  428_submission_action_log_column_data_2.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_action_log_column_data_2.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_managed_configuration_lowercase_update_3.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_managed_configuration_lowercase_update_3.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_submission_list_column_graduationsemester_list_4.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_list_column_graduationsemester_list_4.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_submission_list_column_submissiontype_list_5.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_list_column_submissiontype_list_5.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_submission_list_column_studentname_6.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_list_column_studentname_6.sql"
+  become_user: postgres
+  become: true
+
+- name: run sql commands 428_submission_list_column_lastevent_7.sql
+  shell: "psql -U postgres {{ vireo_db4_name[current_site] }} < /var/lib/pgsql/428_submission_list_column_lastevent_7.sql"
+  become_user: postgres
+  become: true
+
+
 

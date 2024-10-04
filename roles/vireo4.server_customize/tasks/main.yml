@@ -21,33 +21,22 @@
   become_user: "{{vireo_user}}"
   when: customize_organization
 
-- name: create application.yaml from j2
-  template:
-    src: application_yaml.j2
-    dest: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
-    owner: "{{vireo_user}}"
-    mode: 0644
-  become: yes
-  when: not vireo_version_new
-
-- name: create application.yaml from j2
+- name: create application.yml from j2
   template:
     src: "application_yaml_{{ vireo_warversion }}.j2"
-    dest: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
+    dest: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yml"
     owner: "{{vireo_user}}"
     mode: 0644
   become: yes
-  when: vireo_version_new
 
 
-- name: edit pom.xml
-  replace:
-    path: "{{ vireo_codedir }}/etd/Vireo/pom.xml"
-    regexp: 'application.yml'
-    replace: 'application.yaml'
-    owner: "{{vireo_user}}"
-  become: yes
-  when: vireo_version_new
+#- name: edit pom.xml
+#  replace:
+#    path: "{{ vireo_codedir }}/etd/Vireo/pom.xml"
+#    regexp: 'application.yml'
+#    replace: 'application.yaml'
+#    owner: "{{vireo_user}}"
+#  become: yes
 
 - name: edit pom.xml WW
   replace:
@@ -55,13 +44,6 @@
     regexp: '<maven.compiler.release>\${java.version}</maven.compiler.release>'
     replace: ' '
     owner: "{{vireo_user}}"
-  become: yes
-  when: vireo_version_new
-
-- name: remove extraneous application.yml file
-  ansible.builtin.file:
-    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yml"
-    state: absent
   become: yes
 
 - name: remove extraneous application-test.yml file
@@ -76,42 +58,6 @@
     state: absent
   become: yes
 
-#- name: CLEAN DEFAULTS controlled_vocabularies
-#  ansible.builtin.file:
-#    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/controlled_vocabularies/"
-#    state: absent
-#  become: yes
-#  when: clean_defaults
-
-#- name: CLEAN DEFAULTS degrees
-#  ansible.builtin.file:
-#    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/degrees/"
-#    state: absent
-#  become: yes
-#  when: clean_defaults
-
-#- name: CLEAN DEFAULTS degree_levels
-#  ansible.builtin.file:
-#    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/degree_levels/"
-#    state: absent
-#  become: yes
-#  when: clean_defaults
-
-- name: CLEAN DEFAULTS embargos
-  ansible.builtin.file:
-    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/embargos/"
-    state: absent
-  become: yes
-  when: clean_defaults
-
-#- name: CLEAN DEFAULTS graduation_months
-#  ansible.builtin.file:
-#    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/graduation_months/"
-#    state: absent
-#  become: yes
-#  when: clean_defaults
-
-
 - name: build appConfig.js.template from j2 because replace doesn't work on new AWS
   template:
     src: appConfig_js_template_{{ vireo_warversion }}.j2
@@ -119,25 +65,5 @@
     owner: "{{vireo_user}}"
     mode: 0644
   become: yes
-  when: vireo_version_new
-#  when: config_shibboleth and vireo_version_new
-
-- name: edit "{{ app_config_path }} file to use /auth'
-  replace:
-    path: "{{ vireo_codedir }}/etd/Vireo/{{ app_config_path }}"
-    regexp: '\/mock\/auth'
-    replace: '/auth'
-    owner: "{{vireo_user}}"
-  become: yes
-  when: config_shibboleth and not vireo_version_new
-
-- name: 'edit {{ app_config_path }} file mockRole false'
-  replace:
-    path: "{{ vireo_codedir }}/etd/Vireo/{{ app_config_path }}"
-    regexp: "'mockRole': 'admin'"
-    replace: "'mockRole': false"
-    owner: "{{vireo_user}}"
-  become: yes
-  when: config_shibboleth and not vireo_version_new
 
 

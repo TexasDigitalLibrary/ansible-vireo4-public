@@ -3,13 +3,11 @@
 - name: remove postgres
   shell: "yum remove -y postgresql"
   become: yes
-  when: vireo_version_new
 
 - name: remove /ebs/pgsql/ dir
   ansible.builtin.file:
     path: "/ebs/pgsql/"
     state: absent
   become: yes
-  when: vireo_version_new
 
 

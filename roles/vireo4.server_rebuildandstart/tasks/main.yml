@@ -24,17 +24,6 @@
   become: yes
   become_user: '{{ vireo_user }}'
 
-- name: change to user vireo and build war file oldstyle
-  shell: |
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-    mvn clean package -DskipTests -Dproduction -Dassets.uri=file://{{ vireo_asset_storage_path[current_site] }}
-  args:
-    chdir: "{{vireo_codedir}}/etd/Vireo/"
-  become_user: '{{ vireo_user }}'
-  when: not vireo_version_new
-
 - name: change to user vireo and build war file newstyle
   shell: |
     export NVM_DIR="$HOME/.nvm"
@@ -44,7 +33,6 @@
   args:
     chdir: "{{vireo_codedir}}/etd/Vireo/"
   become_user: '{{ vireo_user }}'
-  when: vireo_version_new
 
 
 #IF PROBLEMS WITH BUILDING WAR TRY:

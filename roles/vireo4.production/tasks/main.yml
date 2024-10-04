@@ -1,18 +1,18 @@
 ---
 # tasks file for vireo4.server
 
-- name: edit src/main/resources/application.yaml (might be localhost or contain -migrate-)
+- name: edit src/main/resources/application.yml (might be localhost or contain -migrate-)
   replace:
-    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
+    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yml"
     regexp: '-migrate-'
     replace: '-'
     owner: "{{ vireo_user }}"
   become: yes
   become_user: '{{ vireo_user }}'
 
-- name: edit src/main/resources/application.yaml (might be localhost or contain -migrate-)
+- name: edit src/main/resources/application.yml (might be localhost or contain -migrate-)
   replace:
-    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yaml"
+    path: "{{ vireo_codedir }}/etd/Vireo/src/main/resources/application.yml"
     regexp: 'hibernate.ddl-auto: update'
     replace: 'hibernate.ddl-auto: none'
     owner: "{{ vireo_user }}"

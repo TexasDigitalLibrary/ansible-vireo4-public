@@ -29,14 +29,12 @@
     dest: "/home/{{ vireo_user }}/.bashrc"
     line: "export M2_HOME=/opt/maven"
     insertafter: EOF
-  when: vireo_version_new
 
 - name: Add maven to bash
   lineinfile:
     dest: "/home/{{ vireo_user }}/.bashrc"
     line: "export PATH=${M2_HOME}/bin:${PATH}"
     insertafter: EOF
-  when: vireo_version_new
 
 
 - name: source bash

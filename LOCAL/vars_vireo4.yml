@@ -11,8 +11,9 @@ project_hostname:
 #USE IF VIREO3 SITE HAD CUSTOMIZATIONS FOR dc FIELDS
 customize_organization: false
 
-###SUPPRESS DATA LOAD FOR UPGRADES
-data_load: false
+###SUPPRESS DATA LOAD FOR UPGRADES with 'false'
+data_load: true
+#data_load: false
 
 ### SELECT APACHE SSL
 #apache_use_ssl: false
@@ -21,10 +22,6 @@ apache_use_ssl: true
 ### SELECT TO USE SHIBBOLETH
 #config_shibboleth: false
 config_shibboleth: true
-
-### RUN NON IDEMPOTENT SQL UPDATE FOR PR 1930
-#run_sql: true
-run_sql: false
 
 ### JAVA VERSION
 java_version_alternatives: /usr/lib/jvm/java-11-openjdk-11.0.23.0.9-2.amzn2.0.1.x86_64/bin/java
@@ -40,16 +37,6 @@ vm_location: "{{ current_site }}"
 
 # OCCASIONAL EDITING BELOW
 #########################################
-
-apache_ssl_cert_key: /cert_path/special_server.key
-apache_ssl_cert_cer: /cert_path/special_cert.cer
-apache_ssl_cert_interm: /cert_path/special_interm.cer
-
-apache_ssl_cert_key_dest: /etc/pki/tls/certs/special_server.key
-apache_ssl_cert_cer_dest: /etc/pki/tls/certs/special_cert.cer
-apache_ssl_cert_interm_dest: /etc/pki/tls/certs/special_interm.cer
-
-
 
 #SITE EMAIL ORIGIN
 email_from:
@@ -70,9 +57,8 @@ vireo_gitsource: 'https://github.com/TexasDigitalLibrary/Vireo.git'
 authority_admin: someone@example.edu
 security_secret: verysecretsecret
 vireo_port: 9000
-vireo_gitbranch: main
-vireo_warversion: 4.2.7
-vireo_version_new: true
+vireo_gitbranch: 4.2.9
+vireo_warversion: 4.2.9
 local_authentication: alternate	#false,true
 mvn_version: 3.9.2	#maven 3.9.3 not compatible with angularJS
 nvm_version: 0.39.3
